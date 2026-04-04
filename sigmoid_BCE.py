@@ -54,6 +54,7 @@ for i in range(1001):
     db2 = np.sum(dE_dZ2, axis=0, keepdims=True) # Đạo hàm b2
     
     dE_dH = dE_dZ2 @ W2.T 
+    # Ma trận Jacobian
     dH_dZ1 = H * (1 - H)
     dZ1_grad = dE_dH * dH_dZ1 # Biến trung gian để tính dW1 và db1
 
