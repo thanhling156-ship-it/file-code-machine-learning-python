@@ -1,0 +1,95 @@
+javascript:(function(){
+    /* PHẦN 1: TỰ ĐỘNG RELOAD NẾU QUÁ TẢI */
+    var errorText = "Hệ thống đã đạt đến giới hạn";
+    if (document.body.innerText.indexOf(errorText) > -1) {
+        document.title = "⛔ ĐANG QUAY LẠI...";
+        console.log("Hệ thống bận, thử lại sau 2s...");
+        setTimeout(function() { location.reload(); }, 2000);
+        return;
+    }
+    
+    /* PHẦN 2: NẾU VÀO ĐƯỢC THÌ HIỆN TOOL V11 (Fix lỗi Hòa Lạc) */
+    var url='https://dangkyhoc.vnu.edu.vn/dang-ky-mon-hoc-nganh-1';
+    if(window.location.href.indexOf('dang-ky-mon-hoc-nganh-1')===-1){window.location.href=url;return}
+    
+    var id='vnu-tool-v11';
+    if(document.getElementById(id))return;
+    
+    var audio = new Audio('https://www.soundjay.com/buttons/sounds/button-3.mp3');
+    audio.play().catch(function(){});
+    
+    var p=document.createElement('div');
+    p.id=id;
+    p.style.cssText='position:fixed;top:10px;right:10px;z-index:2147483647;background:#e8f5e9;padding:15px;border:3px solid #2e7d32;border-radius:8px;box-shadow:0 0 20px rgba(0,0,0,0.5);font-family:Arial;min-width:300px';
+    p.innerHTML='<h3 style="margin:0 0 10px;color:#2e7d32">🎉 ĐÃ VÀO ĐƯỢC!</h3><input id="qS_v11" placeholder="VD: MAT3514 3, INT3301" style="padding:8px;width:100%;border:1px solid #2e7d32;font-weight:bold;margin-bottom:5px"><div style="display:flex;gap:5px;margin-bottom:10px"><button id="btn_check_all" style="flex:1;padding:8px;background:#2e7d32;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:bold">✅ TÍCH HẾT</button><button id="btn_uncheck_all" style="flex:1;padding:8px;background:#f57c00;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:bold">❌ BỎ TÍCH</button></div><button id="btn_submit_proxy" style="width:100%;padding:12px;background:#d32f2f;color:white;font-weight:bold;border:none;cursor:pointer;font-size:16px;border-radius:4px;box-shadow:0 2px 5px rgba(0,0,0,0.3)">🚀 GỬI ĐĂNG KÝ NGAY</button><button id="c_v11" style="margin-top:8px;float:right;cursor:pointer;background:#fff;border:1px solid #ccc;padding:2px 8px">Đóng</button>';
+    document.body.appendChild(p);
+    
+    document.getElementById('c_v11').onclick=function(){p.remove()};
+    var inp=document.getElementById('qS_v11');
+    
+    document.getElementById('btn_submit_proxy').onclick=function(){
+        var realBtns=document.querySelectorAll('button, input[type="submit"], a.btn-primary');
+        var found=false;
+        for(var i=0;i<realBtns.length;i++){
+            var txt=(realBtns[i].innerText||realBtns[i].value||"").toUpperCase();
+            if(txt.includes("ĐĂNG KÝ")||txt.includes("GHI NHẬN")||txt.includes("LƯU")||txt.includes("XEM VÀ IN")){
+                realBtns[i].click();found=true;break
+            }
+        }
+        if(!found){alert("Không tìm thấy nút Đăng Ký thật! Hãy cuộn xuống bấm tay.")}
+    };
+    
+    function toggleCheck(state){
+        var tb=document.querySelector('#divDSDK table tbody')||document.querySelector('table tbody');
+        if(!tb)return;
+        var tr=tb.getElementsByTagName('tr');
+        for(var i=0;i<tr.length;i++){
+            if(tr[i].style.display!=="none"){
+                var chk=tr[i].querySelector('input[type="checkbox"]');
+                if(chk){
+                    if(state&&!chk.checked)chk.click();
+                    else if(!state&&chk.checked)chk.click();
+                }
+            }
+        }
+    }
+    document.getElementById('btn_check_all').onclick=function(){toggleCheck(true)};
+    document.getElementById('btn_uncheck_all').onclick=function(){toggleCheck(false)};
+    
+    function doFilter(){
+        var val=inp.value.toUpperCase();
+        var keys=val.split(',');
+        var tb=document.querySelector('#divDSDK table tbody')||document.querySelector('table tbody');
+        if(!tb)return;
+        var tr=tb.getElementsByTagName('tr');
+        for(var i=0;i<tr.length;i++){
+            var td=tr[i].getElementsByTagName('td');
+            if(td.length>4){
+                var n=(td[1].textContent||td[1].innerText).trim();
+                var c=(td[4].textContent||td[4].innerText).trim();
+                var full=(n+" "+c).toUpperCase();
+                var match=false;
+                var hasKey=false;
+                for(var k=0;k<keys.length;k++){
+                    var key=keys[k].trim();
+                    if(key.length>0){
+                        hasKey=true;
+                        if(full.indexOf(key)>-1){
+                            /* LOGIC CHẶN HÒA LẠC: Bỏ qua lớp HL nếu từ khóa không chứa chữ HL */
+                            if(c.toUpperCase().endsWith("HL") && !key.toUpperCase().endsWith("HL")){
+                                continue;
+                            }
+                            match=true;break;
+                        }
+                    }
+                }
+                if(!hasKey)match=true;
+                tr[i].style.display=match?"":"none"
+            }
+        }
+    }
+    inp.addEventListener('keyup',function(){localStorage.setItem('vnu_last_search_v2',this.value);doFilter()});
+    var saved=localStorage.getItem('vnu_last_search_v2');
+    if(saved){inp.value=saved;doFilter()}
+    inp.focus();
+})();
